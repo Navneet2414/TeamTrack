@@ -2,6 +2,9 @@ import React from 'react'
 import Header from '../other/Header'
 import TaskListNumber from '../other/TaskListNumber'
 import TaskList from '../TaskList/TaskList'
+import AllTask from '../other/AllTask'
+import QaList from '../TaskList/QaList'
+import FailedTask from '../TaskList/FailedTask'
 
 const EmployeeDashboard = ({ data = {} }) => {
   const { admin = [], employees = [], teamLead = [] } = data;
@@ -14,6 +17,9 @@ const EmployeeDashboard = ({ data = {} }) => {
         <Header data={data}/>
         <TaskListNumber data={data}/>
         <TaskList data = {data}/>
+        <AllTask/>
+        <QaList/>
+        <FailedTask/>
 
 
     </div>
