@@ -235,7 +235,7 @@ const AddProjectTeam = () => {
                 <th className=" text-gray-800 -4 py-2 border">Members</th>
                 <th className=" text-gray-800 px-4 py-2 border">Team Leads</th>
                 <th className="text-gray-800  px-4 py-2 border">Delivery Date</th>
-                <th className=" text-gray-800 px-4 py-2 border">Actions</th>
+                <th className="text-gray-800 px-4 py-2 border">Actions</th>
               </tr>
             </thead>
             <tbody>
