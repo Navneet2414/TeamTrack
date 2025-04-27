@@ -1,112 +1,111 @@
-// import React from 'react'
-
-// const AllTask = () => {
-//   return (
-//     <div className='bg-[#1c1c1c] p-5 rounded mt-5 h-52 overflow-auto'>
-//         <div className='bg-red-400  mb-2 py-2 px-4 flex justify-between rounded'>
-//             <h2>Sarthak</h2>
-//             <h3>Make a UI Design</h3>
-//             <h5>Status</h5>
-//         </div>
-//         <div className='bg-green-400 mb-2 py-2 px-4 flex justify-between rounded'>
-//             <h2>Sarthak</h2>
-//             <h3>Make a UI Design</h3>
-//             <h5>Status</h5>
-//         </div>
-//         <div className='bg-yellow-400 mb-2py-2 px-4 flex justify-between rounded'>
-//             <h2>Sarthak</h2>
-//             <h3>Make a UI Design</h3>
-//             <h5>Status</h5>
-//         </div>
-//         <div className='bg-blue-400 mb-2 py-2 px-4 flex justify-between rounded'>
-//             <h2>Sarthak</h2>
-//             <h3>Make a UI Design</h3>
-//             <h5>Status</h5>
-//         </div>
-//         <div className='bg-purple-400 mb-2 py-2 px-4 flex justify-between rounded'>
-//             <h2>Sarthak</h2>
-//             <h3>Make a UI Design</h3>
-//             <h5>Status</h5>
-//         </div>
-//     </div>
-//   )
-// }
-
-// export default AllTask
 import React, { useEffect, useState } from 'react';
-
-const tasksList = [
-  {
-    id: 1,
-    Project: "xyz",
-    title: "Design homepage layout",
-    description: "Create a wireframe for the main landing page.",
-    assignedTo: "Alice",
-    assignedBy: "Alice",
-    status: "In Progress",
-    priority: "High",
-    dueDate: "2025-04-25"
-  },
-  {
-    id: 2,
-    Project: "xyz",
-    assignedBy: "Bob",
-    title: "Set up backend server",
-    description: "Initialize Express server and connect to MongoDB.",
-    assignedTo: "Bob",
-    status: "Not Started",
-    priority: "Medium",
-    dueDate: "2025-04-22"
-  },
-  {
-    id: 3,
-    Project: "xyz",
-    assignedBy: "Bob",
-    title: "Write unit tests",
-    description: "Add tests for the login API endpoint.",
-    assignedTo: "Charlie",
-    status: "Pending Review",
-    priority: "Low",
-    dueDate: "2025-04-27"
-  },
-  {
-    id: 4,
-    Project: "xyz",
-    assignedBy: "Bob",
-    title: "Fix navbar responsiveness",
-    description: "Ensure navbar works on mobile devices.",
-    assignedTo: "Diana",
-    status: "Completed",
-    priority: "High",
-    dueDate: "2025-04-20"
-  },
-  {
-    id: 5,
-    Project: "xyz",
-    assignedBy: "Bob",
-    title: "Update README",
-    description: "Add project setup instructions and usage guide.",
-    assignedTo: "Ethan",
-    status: "In Progress",
-    priority: "Low",
-    dueDate: "2025-04-23"
-  }
-];
-
+import axios from 'axios'; // you forgot this
+import CreateTask from './CreateTask';
 const AllTask = () => {
   const [tasks, setTasks] = useState([]);
+  // const [taskList, settaskList] = useState()
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+const [taskToEdit, setTaskToEdit] = useState(null);
+console.log("taskToEditggg",taskToEdit)
 
   useEffect(() => {
-    const savedTasks = JSON.parse(localStorage.getItem('tasks'));
-    console.log("savedtask",savedTasks)
-    if (savedTasks && savedTasks.length > 0) {
-      setTasks(savedTasks);
-    } else {
-      setTasks(tasksList);
-      localStorage.setItem('tasks', JSON.stringify(tasksList));
-    }
+    const fetchTaskData = async () => {
+      try {
+        const response = await axios.get('http://localhost:7000/api/employee/getTaskList', {
+          withCredentials: true,
+        });
+        console.log("response", response.data);
+        const taskData = response.data?.record || [];
+        console.log("taskData from APIqqq:", taskData.taskName);
+
+        console.log("taskData from API:", taskData);
+
+        setTasks(taskData);
+        localStorage.setItem('tasks', JSON.stringify(taskData)); // save in localStorage too if you want
+      } catch (error) {
+        console.error("Error fetching task data:", error);
+
+        // fallback to localStorage if API fails
+        const savedTasks = JSON.parse(localStorage.getItem('tasks'));
+        if (savedTasks && savedTasks.length > 0) {
+          setTasks(savedTasks);
+        }
+      }
+    };
+
+    fetchTaskData();
   }, []);
-  // console.log("Tasks",tasks);
+
+  const handleEditClick = (task) => {
+    setTaskToEdit(task);
+    setIsEditModalOpen(true);
+  };
+  
+  const handleDelete = async (taskId, taskName) => {
+    const confirmDelete = window.confirm(`Are you sure you want to delete "${taskName}"?`);
+    if (!confirmDelete) return;
+
+    try {
+      const res = await axios.delete('http://localhost:7000/api/employee/deleteTaskRecord', {
+        _id: taskId,
+        taskName: taskName
+      }, {
+        withCredentials: true,
+      });
+
+      alert('Task deleted successfully!');
+      console.log(res.data.msg);
+
+      // Update state to remove deleted task
+      const updatedTasks = tasks.filter((task) => task._id !== taskId);
+      setTasks(updatedTasks);
+    } catch (error) {
+      alert('Failed to delete the task.');
+      console.error('Delete error:', error);
+    }
+  };
+
+  // const handleEdit = async (taskId, task) => {
+  //   try {
+  //     const res = await axios.put(`http://localhost:7000/api/employee/updatecreateTask/${taskId}`, task, {
+  //       withCredentials: true,
+  //     });
+  //     alert('Task updated successfully!');
+  //     console.log(res.data.msg);
+
+  //     // Update state to reflect updated task
+  //     const updatedTasks = tasks.map((t) => (t._id === taskId ? { ...t, ...task } : t));
+  //     setTasks(updatedTasks);
+  //   } catch (error) {
+  //     alert('Failed to edit the task.');
+  //     console.error('Edit error:', error);
+  //   }
+  // };
+
+  const handleTaskUpdate = async (updatedTask) => {
+    try {
+      const res = await axios.post(
+        `http://localhost:7000/api/employee/updatecreateTask/${taskToEdit._id}`,
+        updatedTask,
+        { withCredentials: true }
+      );
+  
+      alert('Task updated successfully!');
+      console.log(res.data.msg);
+  
+      const updatedTasks = tasks.map((t) =>
+        t._id === taskToEdit._id ? { ...t, ...updatedTask } : t
+      );
+      setTasks(updatedTasks);
+  
+      setIsEditModalOpen(false);
+      setTaskToEdit(null);
+    } catch (error) {
+      alert('Failed to update the task.');
+      console.error('Update error:', error);
+    }
+  };
+  
 
   return (
     <div className="bg-[#1c1c1c] p-6 rounded mt-12 max-h-[500px] overflow-auto shadow-xl">
@@ -115,24 +114,30 @@ const AllTask = () => {
       {tasks.length === 0 ? (
         <p className="text-gray-400 text-sm">No tasks found.</p>
       ) : (
-        tasks.map((task,idx) => (
+        tasks.map((task, idx) => (
           <div
-            key={task.id}
+            key={task.id || idx}
             className="mb-4 p-4 rounded-lg bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 shadow-lg hover:scale-102 transition-transform duration-200"
           >
-            <div className="flex justify-between">
-              <div>
-                <button className="bg-green-600 text-lg font-medium text-white px-5 py-2 rounded-sm">Delete</button>
-              </div>
-              <div>
-                <button className="bg-yellow-600 text-lg font-medium text-white px-5 py-2 rounded-sm">MoveTo QA</button>
-              </div>
-              <div>
-                <button className='bg-green-600 text-lg font-medium text-white px-5 py-2 rounded-sm'>Edit</button>
-              </div>
+            <div className="flex justify-between mb-2">
+              <button
+                onClick={() => handleDelete(task._id, task.taskName)}
+                className="bg-green-600 text-lg font-medium text-white px-5 py-2 rounded-sm"
+              >
+                Delete
+              </button>
+              <button className="bg-yellow-600 text-lg font-medium text-white px-5 py-2 rounded-sm">Move To QA</button>
+              <button
+  onClick={() => handleEditClick(task)}
+  className="bg-green-600 text-lg font-medium text-white px-5 py-2 rounded-sm"
+>
+  Edit
+</button>
+
             </div>
+
             <div className="mb-2">
-              <h2 className="text-lg font-semibold text-white">{task.title}</h2>
+              <h2 className="text-lg font-semibold text-white">{task.taskName}</h2>
               <p className="text-sm text-gray-300 italic">{task.description}</p>
             </div>
 
@@ -143,11 +148,11 @@ const AllTask = () => {
               </div>
               <div>
                 <span className="text-gray-200 font-medium">Assigned To:</span>{' '}
-                <span className="text-white">{task.assignedTo}</span>
+                <span className="text-white">{task.assignTo}</span>
               </div>
               <div>
                 <span className="text-gray-200 font-medium">Assigned By:</span>{' '}
-                <span className="text-white">{task.assignedBy}</span>
+                <span className="text-white">{task.assignBy}</span>
               </div>
               <div>
                 <span className="text-gray-200 font-medium">Status:</span>{' '}
@@ -156,27 +161,51 @@ const AllTask = () => {
               <div>
                 <span className="text-gray-200 font-medium">Priority:</span>{' '}
                 <span
-                  className={`text-white ${
-                    task.priority === 'High'
+                  className={`text-white px-2 py-1 rounded-full ${task.priority === 'High'
                       ? 'bg-red-600'
                       : task.priority === 'Medium'
-                      ? 'bg-yellow-600'
-                      : 'bg-green-600'
-                  } px-2 py-1 rounded-full`}
+                        ? 'bg-yellow-600'
+                        : 'bg-green-600'
+                    }`}
                 >
                   {task.priority}
                 </span>
               </div>
               <div>
-                <span className="text-gray-200 font-medium">Due Date:</span>{' '}
-                <span className="text-white">{task.dueDate}</span>
+                {/* <span className="text-gray-200 font-medium">Due Date:</span>{' '}
+                <span className="text-white">{task.dueDate}</span> */}
               </div>
-              
             </div>
           </div>
         ))
       )}
+    
+    {isEditModalOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg w-[90%] max-w-md relative">
+      <button
+        onClick={() => setIsEditModalOpen(false)}
+        className="absolute top-2 right-2 text-black font-bold text-xl"
+      >
+        ×
+      </button>
+      
+      <h2 className="text-2xl font-semibold mb-4">Edit Task</h2>
+
+      {/* Here call CreateTask */}
+      <CreateTask
+        isEditMode={true}
+        initialData={taskToEdit}
+        onSave={handleTaskUpdate}
+        onCancel={() => setIsEditModalOpen(false)}
+      />
     </div>
+  </div>
+)}
+
+    </div>
+    
+    
   );
 };
 
