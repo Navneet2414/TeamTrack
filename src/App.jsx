@@ -9,6 +9,7 @@ import AddProjectTeam from './pages/AddProjectTeam';
 import { Route, Routes ,Navigate } from 'react-router-dom';
 import TeamLeadDashboard from './components/Dashboard/TeamLeadDashboard';
 import CreateTask from './components/other/CreateTask';
+import CreateUser from './components/other/CreateUser';
 // import { setLocalStorage } from './localStorage';
 
 setLocalStorage();
@@ -80,6 +81,7 @@ const { employees = [], admin = [], teamLead = [] } = getLocalStorage() || {};
         {/* <Route path="/teamLead" element={<TeamLeadDashboard/>} /> */}
         <Route path="/add-project-team" element={<AddProjectTeam />} /> 
         <Route path="/createTask" element={<CreateTask />} /> 
+        <Route path="/createUser" element={<CreateUser />} /> 
       </Routes>
     </>
   );
