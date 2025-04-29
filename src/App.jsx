@@ -9,6 +9,7 @@ import AddProjectTeam from './pages/AddProjectTeam';
 import { Route, Routes ,Navigate } from 'react-router-dom';
 import TeamLeadDashboard from './components/Dashboard/TeamLeadDashboard';
 import CreateTask from './components/other/CreateTask';
+import CreateUser from './components/other/CreateUser';
 // import { setLocalStorage } from './localStorage';
 
 setLocalStorage();
@@ -73,13 +74,14 @@ const { employees = [], admin = [], teamLead = [] } = getLocalStorage() || {};
       {/* <AddProjectTeam/> */}
       <Routes>
         
-        <Route path="/" element={!user ? <Login handleLogin={handleLogin} /> : <Navigate to={user === 'admin' ? '/admin' : user === 'teamLead' ? '/teamLead' : '/employee'} />} />
-        <Route path="/admin" element={user === 'admin' ? <AdminDashboard  data = {{ admin, employees, teamLead }}/> : <Navigate to="/" />} />
-        <Route path="/employee" element={user === 'employees' ? <EmployeeDashboard data={{ admin, employees, teamLead }}  /> : <Navigate to="/" />} />
-        <Route path="/teamLead" element={user === 'teamLead' ? <TeamLeadDashboard data={{ admin, employees, teamLead }}  /> : <Navigate to="/" />} />
+        <Route path="/" element={ <Login  />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard/>} />
+        <Route path="/employee-dashboard" element={<EmployeeDashboard/>} />
+        <Route path="/team-lead-dashboard" element={<TeamLeadDashboard />} />
         {/* <Route path="/teamLead" element={<TeamLeadDashboard/>} /> */}
         <Route path="/add-project-team" element={<AddProjectTeam />} /> 
         <Route path="/createTask" element={<CreateTask />} /> 
+        <Route path="/createUser" element={<CreateUser />} /> 
       </Routes>
     </>
   );
